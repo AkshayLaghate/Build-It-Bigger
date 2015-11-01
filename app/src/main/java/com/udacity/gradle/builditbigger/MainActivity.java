@@ -56,49 +56,50 @@ public class MainActivity extends AppCompatActivity {
         new EndpointsAsyncTask().execute(new Pair<Context, String>(this, "Akshay"));
     }
 
-}
+    class EndpointsAsyncTask extends AsyncTask<Pair<Context, String>, Void, String> {
+        ProgressDialog pd;
+        private MyApi myApiService = null;
+        private Context context;
 
-class EndpointsAsyncTask extends AsyncTask<Pair<Context, String>, Void, String> {
-    private static MyApi myApiService = null;
-    ProgressDialog pd;
-    private Context context;
-
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-        pd = new ProgressDialog(context);
-        pd.setIndeterminate(true);
-        pd.setMessage("Retrieving Joke...");
-        pd.show();
-    }
-
-    @Override
-    protected String doInBackground(Pair<Context, String>... params) {
-        if (myApiService == null) {  // Only do this once
-            MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(), new AndroidJsonFactory(), null)
-                    .setRootUrl("https://joker-1115.appspot.com/_ah/api/");
-            // end options for devappserver
-
-            myApiService = builder.build();
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pd = new ProgressDialog(MainActivity.this);
+            pd.setIndeterminate(true);
+            pd.setMessage("Retrieving Joke...");
+            pd.show();
         }
 
-        context = params[0].first;
-        String name = params[0].second;
+        @Override
+        protected String doInBackground(Pair<Context, String>... params) {
+            if (myApiService == null) {  // Only do this once
+                MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(), new AndroidJsonFactory(), null)
+                        .setRootUrl("https://joker-1115.appspot.com/_ah/api/");
+                // end options for devappserver
 
-        try {
-            return myApiService.sayHi(name).execute().getData();
-        } catch (IOException e) {
-            return e.getMessage();
+                myApiService = builder.build();
+            }
+
+            context = params[0].first;
+            String name = params[0].second;
+
+            try {
+                return myApiService.sayHi(name).execute().getData();
+            } catch (IOException e) {
+                return e.getMessage();
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            pd.dismiss();
+            Toast.makeText(context, result, Toast.LENGTH_LONG).show();
+            Intent i = new Intent(context, DisplayActivity.class);
+            i.putExtra("joke", result);
+            context.startActivity(i);
+
         }
     }
-
-    @Override
-    protected void onPostExecute(String result) {
-        pd.dismiss();
-        Toast.makeText(context, result, Toast.LENGTH_LONG).show();
-        Intent i = new Intent(context, DisplayActivity.class);
-        i.putExtra("joke", result);
-        context.startActivity(i);
-
-    }
 }
+
+
