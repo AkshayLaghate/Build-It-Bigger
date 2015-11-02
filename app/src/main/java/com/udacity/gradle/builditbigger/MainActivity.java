@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     class EndpointsAsyncTask extends AsyncTask<Pair<Context, String>, Void, String> {
-        ProgressDialog pd;
+        private ProgressDialog pd;
         private MyApi myApiService = null;
         private Context context;
 
